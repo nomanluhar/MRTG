@@ -1,0 +1,37 @@
+Routes :
+
+/superadmin/login (POST METHOD) => for login superadmin -DONE 
+/customers/login (POST METHOD) => for login customers
+/customers (GET METHOD) => table of customers on super admin home page
+/customers/add (POST METHOD) => add customers
+/customers/:id (POST METHOD) => for view one customers
+/customers/:id (PATCH METHOD) => for edit one customers
+/customers/:id (DELETE METHOD) => for remove one customer
+
+//For Dash board
+/dashboard/:id/
+/dashboard/:id
+
+make 
+admin_user
+    -email
+    -password
+customers
+    -id (Primary key)
+    -full_name
+    -email
+    -user_name
+    -password
+customer-mrtg-details
+    -name
+    -url
+    -customer-id (foreign key)
+
+
+ 
+async function accessTokenGenerate(userId) {
+  var accessToken = await jwt.sign({ _id: userId }, process.env.SECRET_KEY);
+  return accessToken;
+}   
+
+const mrtgQuery = `INSERT INTO customers_mrtg(customer_id,mrtg_name,mrtg_url) values ('${foreignId}','${obj.name}','${obj.URL}')`;
