@@ -5,7 +5,8 @@ const {
   customers,
   addCustomer,
   updateCustomer,
-  removeCustomer
+  removeCustomer,
+  getOneCustomer
 } = require("./user-routes-functions.js");
 
 const {
@@ -22,8 +23,8 @@ router.get("/", (req, res) => {
 
 router.post(
   "/superadmin/login",
-  loginValidation,
-  validationMiddleware,
+  // loginValidation,
+  // validationMiddleware,
   (req, res) => {
     adminLogin(req, res);
   }
@@ -35,8 +36,8 @@ router.get("/customers", (req, res) => {
 
 router.post(
   "/customers/add",
-  customerValidation,
-  validationMiddleware,
+  // customerValidation,
+  // validationMiddleware,
   (req, res) => {
     addCustomer(req, res);
   }
@@ -48,6 +49,20 @@ router.patch("/customers/:id", (req, res) => {
 
 router.delete("/customers/:id", (req, res) => {
   removeCustomer(req, res);
+});
+
+//customers side api
+router.post(
+  "/dashboard/login",
+  // loginValidation,
+  // validationMiddleware,
+  (req, res) => {
+    adminLogin(req, res);
+  }
+);
+
+router.get("/dashboard/:id", (req, res) => {
+  getOneCustomer(req, res);
 });
 
 module.exports = router;

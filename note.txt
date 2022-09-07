@@ -1,16 +1,19 @@
 Routes :
 
+for superadmin
 /superadmin/login (POST METHOD) => for login superadmin -DONE 
-/customers/login (POST METHOD) => for login customers
 /customers (GET METHOD) => table of customers on super admin home page
 /customers/add (POST METHOD) => add customers
-/customers/:id (POST METHOD) => for view one customers
 /customers/:id (PATCH METHOD) => for edit one customers
-/customers/:id (DELETE METHOD) => for remove one customer
+/customers/:id (DELETE METHOD) => for remove one customer with mrtg
+/mrtg/add (POST METHOD) => add mrtg
+/mrtg/:id (PATCH METHOD) => update mrtg
+/mrtg/:id (DELETE METHOD) => remove mrtg
+/mrtg (GET METHOD) => get mrtg
 
-//For Dash board
-/dashboard/:id/
-/dashboard/:id
+//For Customer
+/dashboard/login (POST METHOD) => for login customers
+/dashboard/:id (POST METHOD) => for view one customers with mrtg
 
 make 
 admin_user
@@ -35,3 +38,19 @@ async function accessTokenGenerate(userId) {
 }   
 
 const mrtgQuery = `INSERT INTO customers_mrtg(customer_id,mrtg_name,mrtg_url) values ('${foreignId}','${obj.name}','${obj.URL}')`;
+
+
+// await addMRTG(MRTG, addResponse.insertId);
+// async function addMRTG(arr, foreignId) {
+//   if (arr && arr.length) {
+//     try {
+//       arr.map(async (obj) => {
+//         const mrtgQuery = `INSERT INTO customers_mrtg(customer_id,name,url) values ('${foreignId}','${obj.name}','${obj.URL}')`;
+//         await db.promise().query(mrtgQuery);
+//       })
+//     } catch (error) {
+//       console.log(error.message)
+//     };
+//     return
+//   };
+// };

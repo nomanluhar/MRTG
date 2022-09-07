@@ -1,40 +1,56 @@
 const db = require("../models/db");
-const { hash } = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const { hash, compare } = require("bcryptjs");
 
 exports.adminLogin = async (req, res) => {
-  const { email, password } = req.body;
-  const findOneQuery = `SELECT * FROM admin_user where email=?`;
   try {
+    const { email, password } = req.body;
+
+    const dbName = req.originalUrl.match('/superadmin/') ? 'admin_user' : 'customers';
+
+    const findOneQuery = `SELECT * FROM ${dbName} where email=?`;
     const response = await findOneFun(findOneQuery, email);
+
     if (response) {
-      if (response.password == password) {
+      if (dbName == 'customers') {
+        const result = await compare(response.password, password);
+        if (result) {
+          return res.status(200).json({
+            success: true,
+            message: "User login successfully.",
+          });
+        } else {
+          return res.status(401).json({
+            success: false,
+            message: "Unauthorized user",
+          });
+        }
+      } else if (response.password == password) {
         return res.status(200).json({
           success: true,
-          message: "Super Admin User Login Successfully.",
+          message: "User login successfully.",
         });
       } else {
         return res.status(401).json({
           success: false,
           message: "Unauthorized user",
         });
-      }
+      };
     } else {
       return res.status(401).json({
         success: false,
         message: "Unauthorized user",
       });
-    }
+    };
   } catch (error) {
     res.status(401).json({
       error: error.message,
     });
-  }
+  };
 };
 
 exports.customers = async (req, res) => {
-  const findQuery = `SELECT * FROM customers`;
   try {
+    const findQuery = `SELECT * FROM customers`;
     const [findResponse] = await db.promise().query(findQuery);
     return res.status(200).json({
       success: true,
@@ -49,9 +65,8 @@ exports.customers = async (req, res) => {
 };
 
 exports.addCustomer = async (req, res) => {
-  const { full_name, email, user_name, password, MRTG } = req.body;
-
   try {
+    const { full_name, email, user_name, password, MRTG } = req.body;
     const findOneQuery = `SELECT * FROM customers where email=?`;
     const response = await findOneFun(findOneQuery, email);
     if (response) {
@@ -65,8 +80,6 @@ exports.addCustomer = async (req, res) => {
       const [addResponse] = await db.promise().query(addQuery);
 
       if (addResponse.affectedRows > 0) {
-        await addMRTG(MRTG, addResponse.insertId);
-
         return res.status(201).json({
           success: true,
           message: "Customers added successfully",
@@ -85,8 +98,8 @@ exports.addCustomer = async (req, res) => {
 };
 
 exports.updateCustomer = async (req, res) => {
-  const { full_name, email, user_name } = req.body;
   try {
+    const { full_name, email, user_name } = req.body;
     const updateQuery = `UPDATE customers SET full_name=?,email=?,user_name=? WHERE customer_id=?`;
     const [updateResponse] = await db
       .promise()
@@ -106,21 +119,44 @@ exports.updateCustomer = async (req, res) => {
 
 exports.removeCustomer = async (req, res) => {
   try {
-    const removeQuery = `DELETE FROM customers WHERE customer_id=?`;
-    const [removeResponse] = await db
-      .promise()
-      .query(removeQuery, [req.params.id]);
+    const removeMrtgQuery = `DELETE FROM customers_mrtg WHERE customer_id=${req.params.id}`;
+    const [removeMrtgResponse] = await db.promise().query(removeMrtgQuery);
+
+    const removeQuery = `DELETE FROM customers WHERE customers_id=${req.params.id}`;
+    const [removeResponse] = await db.promise().query(removeQuery);
+   
     if (removeResponse.affectedRows == 1) {
       return res.status(200).json({
         success: true,
         message: "Customers removed successfully",
       });
-    }
+    };
   } catch (error) {
     return res.status(401).json({
       error: error.message,
     });
-  }
+  };
+};
+
+exports.getOneCustomer = async (req, res) => {
+  try {
+    const findOneQuery = `SELECT * FROM customers WHERE customers_id=${req.params.id}`;
+    const [[findResponse]] = await db.promise().query(findOneQuery);
+
+    const findQuery = `SELECT * FROM customers_mrtg WHERE customer_id=${req.params.id}`
+    const [findMrtgResponse] = await db.promise().query(findQuery);
+
+    return res.status(200).json({
+      success: true,
+      message: "Customer Data",
+      customer: findResponse,
+      mrtg: findMrtgResponse,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      error: error.message,
+    });
+  };
 };
 
 async function findOneFun(query, val) {
@@ -130,17 +166,5 @@ async function findOneFun(query, val) {
     return queryResult;
   } else {
     return false;
-  }
-}
-
-async function addMRTG(arr, foreignId) {
-  if (arr && arr.length) {
-    arr.map(addFun);
-
-    var addFun = (obj) => {
-      console.log(obj)
-    };
-  }
-
-  return isMrtgAdd;
-}
+  };
+};

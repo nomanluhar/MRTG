@@ -15,8 +15,10 @@ app.use(cors({ credentials: true, origin: true, }));
 app.use(cors({ origin: process.env.CLIENT_URL, optionsSuccessStatus: 200 }));
 
 const userRoutes = require('./controllers/user-routes.js');
+const mrtgRoutes = require('./controllers/mrtg-routes.js');
 
 app.use('/',userRoutes);
+app.use('/',mrtgRoutes);
 
 var PORT = process.env.PORT || 8000;
 
