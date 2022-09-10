@@ -7,8 +7,8 @@ exports.adminLogin = async (req, res) => {
 
     const dbName = req.originalUrl.match('/superadmin/') ? 'admin_user' : 'customers';
 
-    const findOneQuery = `SELECT * FROM ${dbName} where email=?`;
-    const response = await findOneFun(findOneQuery, email);
+    const findOneQuery = `SELECT * FROM ${dbName} where email=${email}`;
+    const response = await findOneFun(findOneQuery);
 
     if (response) {
       if (dbName == 'customers') {
@@ -124,7 +124,7 @@ exports.removeCustomer = async (req, res) => {
 
     const removeQuery = `DELETE FROM customers WHERE customers_id=${req.params.id}`;
     const [removeResponse] = await db.promise().query(removeQuery);
-   
+
     if (removeResponse.affectedRows == 1) {
       return res.status(200).json({
         success: true,
